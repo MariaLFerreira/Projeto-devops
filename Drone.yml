@@ -1,42 +1,42 @@
 ---
-tipo : pipeline
-tipo : docker
-nome : k8s-cluster
+kind: pipeline
+type: docker
+name: k8s-cluster
 
-passos :
+steps:
       
-- name : inicializa o plugin aws para terraform
-  imagem : mateusmuller2/ansibleandterraform:latest
-  ambiente :
-    AWS_ACCESS_KEY_ID :
-      from_secret : aws_access
-    AWS_SECRET_ACCESS_KEY :
-      from_secret : aws_secret
-  comandos :
-  - inicialização do terraform
+- name: initialize aws plugin for terraform
+  image: mlaurawferreira/ansibleandterraform:latest
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: aws_access
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: aws_secret
+  commands:
+  - terraform init
   
-- name : cria aws infra
-  imagem : mlaurawferreira/ansibleandterraform:latest
-  ambiente :
-    AWS_ACCESS_KEY_ID :
-      from_secret : aws_access
-    AWS_SECRET_ACCESS_KEY :
-      from_secret : aws_secret
-  comandos :
-  - aplicação terraform -auto-aprovação
+- name: create aws infra
+  image: mlaurawferreira/ansibleandterraform:latest
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: aws_access
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: aws_secret
+  commands:
+  - terraform apply -auto-approve
   
-- name : aplique o playbook ansible
-  imagem : mlaurawferreira/ansibleandterraform:latest
-  ambiente :
-    AWS_ACCESS_KEY_ID :
-      from_secret : aws_access
-    AWS_SECRET_ACCESS_KEY :
-      from_secret : aws_secret
-    PRIVATE_KEY :
-      from_secret : private_key
-  comandos :
-    -mkdir -p ~ /.ssh/
-    - echo "$PRIVATE_KEY" > ~/.ssh/id_rsa
-    - desabilitar PRIVATE_KEY
-    - chmod 600 ~/.ssh/id_rsa
-    - ansible-playbook -i ec2.py --limit "tag_name_k8s" -u ubuntu --ssh-common-args='-o StrictHostKeyChecking=no' --private-key ~/.ssh/id_rsa site.yml
+- name: apply ansible playbook
+  image: mlaurawferreira/ansibleandterraform:latest
+  environment:
+    AWS_ACCESS_KEY_ID:
+      from_secret: aws_access
+    AWS_SECRET_ACCESS_KEY:
+      from_secret: aws_secret
+    PRIVATE_KEY:
+      from_secret: private_key
+  commands:
+  - mkdir -p ~/.ssh/
+  - echo "$PRIVATE_KEY" > ~/.ssh/kube
+  - unset PRIVATE_KEY
+  - chmod 600 ~/.ssh/id_rsa
+  - ansible-playbook -u ubuntu --private-key ~/.ssh/kube playbook.yml
