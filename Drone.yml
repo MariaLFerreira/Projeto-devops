@@ -38,5 +38,5 @@ steps:
   - mkdir -p ~/.ssh/
   - echo "$PRIVATE_KEY" > ~/.ssh/kube
   - unset PRIVATE_KEY
-  - chmod 600 ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/kube
   - ansible-playbook -u ubuntu --private-key ~/.ssh/kube playbook.yml
