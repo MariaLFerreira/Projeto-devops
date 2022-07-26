@@ -45,11 +45,7 @@ resource "aws_security_group" "kube-sg" {
   }
 }
 
-output "ec2instance-worker1" {
-  value = aws_instance.kubernetes-worker1.public_ip
-}
-
-resource "aws_instance" "kubernetes-worker2" {
+resource "aws_instance" "kubernetes-worker" {
   ami = lookup(var.awsprops, "ami")
   instance_type = lookup(var.awsprops, "itype")
   key_name      = "kube.pub" 
@@ -63,16 +59,14 @@ resource "aws_instance" "kubernetes-worker2" {
 
 } 
 
-output "ec2instance-worker2" {
-  value = aws_instance.kubernetes-worker2.public_ip
+output "ec2instance-worker" {
+  value = aws_instance.kubernetes-worker.public_ip
 }
 
 resource "aws_instance" "kubernetes-master" {
   ami = lookup(var.awsprops, "ami")
   instance_type = lookup(var.awsprops, "itype")
-  #subnet_id = lookup(var.awsprops, "subnet")
   key_name      = "kube.pub" 
-  #count         = 1
   tags = {
     name = "k8s"
     type = "master"
